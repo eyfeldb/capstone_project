@@ -1,22 +1,31 @@
 # Capstone project
 
-The goal of the project is to identify behavioral factors that have highest impact on customers likelihood to downgrade their subscription in the next 30 days and predict customers with highest likelihood to downgrade.
+## Business Problem
+- An unnamed software company is offering a numbers of different subscription products in a B2C space and has millions of active users enjoying a variety of applications offered by their plans. Some customers over the course of their tenure end up switching to lower priced plans (downgrade), leading to a decrease in revenue from these customers. 
+- The management wants to understand if there are any signals in customers' behavior we can pick up prior to them downgrading (and, perhaps, do some intervention in order to prevent the downgrade altogether).
 
-The initial dataset is based on over 2M customer records and the outcome of whether they downgraded in the subsequent 30 days after their behavior snapshot. The overall classes are highly imbalanced as the downgrade event is an extremely rare occurence (less than 1%). The feature set has a number of categorical variables and over 40 characteristics defining customers usage over the course of the previous month. 
+## Approach
+- In order to address the business question, we gathered historical data on over 2MM customers' behavior along with their descriptive characteristics such as socio-demographic and product usage history over. Each customer was also marked as whether they downgraded in the subsequent month.
+- Since there are many different ways to measure usage (>40 different variables), the team grouped customers into 4 easy to understsand segments for better understanding and more actionable results (based on the original 40+ variables using K-means clustering).
+- A predictive model (Logistic Regression & DecisionTree) was later run using the new 4 customer segments (+ demographic characteristics) as signals on whether somebody is likely to downgrade.
 
-After resampling the data (mostly downsampling negative class records) to the 50/50 ratio, the next step was to condence the usage factors into 4 clusters using K-means clustering to make any subsequent recommendations easier to interpret and implement. After the clusters were computed, PCA was run to map out cluster performance and their centers and identify how good of a job the clustering algorithm does at separating customers.
-
+## Findings and Results
+- Grouping customers into 4 segments from the original 40+ signals of different apps worked really well and can be used to simplify customer segmentation for any subsequent work (including marketing). The analysis shows that there is very little 'loss of information' when we group customers in this way. As can be seen on the chart below, the segments are all neatly separated from each other
 <img width="1545" alt="Screenshot 2023-03-01 at 2 45 57 PM" src="https://user-images.githubusercontent.com/63613300/222283062-e3fb431a-5400-40d5-bed3-93eed85cca0f.png">
 
-As a subsequent step, we take a closer look at the clusters and their parallel coordinates among the original 41 usage-based dimensions. We see that clusters have pretty defined values across the dimensions that can be later used to give more meaningful names to each of the 4 clusters.
-
+- Additionally, customers in each segment seem to have very distinct behaviors based on some of the original features. The chart below summarizes the overall distinction, indicating an opportunity for more qualitative analysis in order to better understand each of the segments.
 <img width="1559" alt="Screenshot 2023-03-01 at 2 46 07 PM" src="https://user-images.githubusercontent.com/63613300/222283253-f2f9b6d3-9f5b-4388-a9f6-9e8521fd21a9.png">
 
-Finally, in order to predict actual outcomes and likelihood to downgrade, two approaches were used: a decision tree classifier and a logistic regression (both optimized via RandomizedSearchCV for optimal hyperparameters w/ default cross-validation). Both yielded similar accuracy on test data (~66%) with the following confusion matrix
-
+- The final predictive model (LogisticRegression) was also successful, showing strong predictive power of customers' usage data on their downgrade outcome. Both models yielded ~65% accuracy, which is significantly better than random guessing and could be used to improve the 'health' of customers' base (change their behavior to prevent subsequent downgrades). As can be seen in the chart below, the model does have some false positives and false negatives, however, it successfully captures the majority of likely downgraders. These customers can be targeted with proactive offers and/or other special deals to improve revenue.
 <img width="321" alt="Screenshot 2023-03-01 at 2 46 14 PM" src="https://user-images.githubusercontent.com/63613300/222283460-4fa6fc03-8721-4b2c-95f5-5ff12141428d.png">
 
-Running feature permutation importance we observe that factors with highest impact on likelihood downgrade are:
-- usage cluster
-- customer tenure
-- whether the customer is new or returning
+- Finally, thanks to the model, we can understand the most important factors impacting customers' likelihood to downgrade. Thg top 3 features are:
+  - usage cluster
+  - customer tenure
+  - whether the customer is new or returning
+
+## Next Steps
+- Run descriptive analysis on each of the segments and map them to the original 40+ usage features to better understand underlying behaviors of each cluster (i.e. heavy vs light vs occasional users of specific apps). This will help the business better understand each customer but also target them and design custom intervention techniques
+- Gather additional data and adjust the outcome window (when they downgrade) to try and further improve the accuracy of the model 
+- Design several A/B experiment targeting likely downgraders (as identified by the model) and measure effectiveness of treatment in preventing the downgrade event
+- After the intitial release, continiously monitor model's performance to ensure it remains accurate in representing likely downgraders (and to ensure we capture any new potential factors in the future)
